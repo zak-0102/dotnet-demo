@@ -1,4 +1,4 @@
-name: ZakDemoa
+name: ZakDemo
 on:
   push:
     branches:
