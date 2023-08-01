@@ -1,39 +1,52 @@
-name: demo2
-
+name: Build and Test
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-    
+    branches:
+      - master
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: checkout
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup .Net
+        uses: actions/setup-dotnet@v3
+        with: 
+          dotnet-version: 6.0.x
       
-    - name: Setup .Net
-      uses: actions/setup-dotnet@v3
-      with: 
-        dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: |
+           cd Stocklisting 
+           dotnet restore
       
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Build
+        run: |
+           cd Stocklisting 
+           dotnet build --no-restore
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .Net
+        uses: actions/setup-dotnet@v3
+        with: 
+          dotnet-version: 6.0.x
       
-    - name: Build
-      run: dotnet build --no-restore
-    
+      - name: Restore dependencies
+        run: |
+           cd Stocklisting 
+           dotnet restore
+      
+      - name: Build
+        run: |
+           cd Stocklisting 
+           dotnet build --no-restore
 
-        
-    
-        
-    
-    
-    
-    
-    
-    
-
-
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.SECRET_USERNAME }}
+          password: ${{ secrets.SECRET_PASSWORD }}
